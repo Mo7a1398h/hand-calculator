@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الهند</title>
+    
+    <!-- أيقونات التطبيق -->
+    <link rel="icon" type="image/svg+xml" href="app-icon.svg">
+    <link rel="apple-touch-icon" href="app-icon.svg">
+    
+    <!-- إعدادات iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="حاسبة الهند">
+    <meta name="theme-color" content="#1A237E">
+    
+    <!-- إعدادات التطبيق على الهاتف -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="حاسبة الهند">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="controls-top">
+        <button onclick="toggleTheme()" id="themeToggle" class="control-btn theme-btn">
+            <span class="light-icon">☀️</span>
+            <span class="dark-icon">🌙</span>
+        </button>
+        <button onclick="showCreator()" id="infoButton" class="control-btn info-btn" title="معلومات عن المطور">
+            ℹ️
+        </button>
+    </div>
+    <div class="container">
+        <h1>حاسبة الهند</h1>
+        
+        <div class="players">
+            <div class="player">
+                <h2>الفريق 1</h2>
+                <input type="text" id="player1Name" placeholder="اسم الفريق 1" class="player-name">
+                <div class="special-moves">
+                    <button onclick="addSpecialMove(1, 'khales')" class="special-btn khales">خالص</button>
+                    <button onclick="addSpecialMove(1, 'hand')" class="special-btn hand">هند</button>
+                    <button onclick="addSpecialMove(1, 'ajkari')" class="special-btn ajkari">أجكري</button>
+                    <button onclick="addSpecialMove(1, 'amkari')" class="special-btn amkari">أمكري</button>
+                    <button onclick="addSpecialMove(1, 'amkariWalon')" class="special-btn amkari-walon">أمكري ولون</button>
+                </div>
+                <div class="score-input">
+                    <div class="score-row">
+                        <input type="number" id="player1Score" placeholder="النقاط" min="0">
+                        <input type="number" id="player1Down" placeholder="نزول" min="0" class="down-input">
+                        <input type="number" id="player1Minus" placeholder="خصم" min="0" class="minus-input">
+                    </div>
+                    <button onclick="addScore(1)">إضافة</button>
+                </div>
+
+                <div class="total-score">المجموع: <span id="player1Total">0</span></div>
+            </div>
+
+            <div class="player">
+                <h2>الفريق 2</h2>
+                <input type="text" id="player2Name" placeholder="اسم الفريق 2" class="player-name">
+                <div class="special-moves">
+                    <button onclick="addSpecialMove(2, 'khales')" class="special-btn khales">خالص</button>
+                    <button onclick="addSpecialMove(2, 'hand')" class="special-btn hand">هند</button>
+                    <button onclick="addSpecialMove(2, 'ajkari')" class="special-btn ajkari">أجكري</button>
+                    <button onclick="addSpecialMove(2, 'amkari')" class="special-btn amkari">أمكري</button>
+                    <button onclick="addSpecialMove(2, 'amkariWalon')" class="special-btn amkari-walon">أمكري ولون</button>
+                </div>
+                <div class="score-input">
+                    <div class="score-row">
+                        <input type="number" id="player2Score" placeholder="النقاط" min="0">
+                        <input type="number" id="player2Down" placeholder="نزول" min="0" class="down-input">
+                        <input type="number" id="player2Minus" placeholder="خصم" min="0" class="minus-input">
+                    </div>
+                    <button onclick="addScore(2)">إضافة</button>
+                </div>
+
+                <div class="total-score">المجموع: <span id="player2Total">0</span></div>
+            </div>
+        </div>
+
+        <div class="rounds">
+            <h3>سجل الجولات</h3>
+            <div id="roundHistory"></div>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="game-settings">
+                <div class="setting-item">
+                    <label for="maxRoundsInput">عدد الجولات:</label>
+                    <input type="number" id="maxRoundsInput" min="1" max="20" value="7" onchange="updateMaxRounds()">
+                </div>
+            </div>
+            <div class="game-rules">
+                <p class="rules-text">الفائز هو من يجمع أقل نقاط 🌟</p>
+            </div>
+            <div class="round-counter">
+                <span>الجولة الحالية: </span>
+                <span id="currentRound">1</span>
+                <span> / </span>
+                <span id="maxRounds">7</span>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stats player1-stats">
+                <h3>إحصائيات الفريق 1</h3>
+                <div>أعلى نقاط: <span id="player1HighScore">0</span></div>
+                <div>متوسط النقاط: <span id="player1Average">0</span></div>
+                <div>عدد الانتصارات: <span id="player1Wins">0</span></div>
+            </div>
+            <div class="stats player2-stats">
+                <h3>إحصائيات الفريق 2</h3>
+                <div>أعلى نقاط: <span id="player2HighScore">0</span></div>
+                <div>متوسط النقاط: <span id="player2Average">0</span></div>
+                <div>عدد الانتصارات: <span id="player2Wins">0</span></div>
+            </div>
+        </div>
+        <div class="game-history">
+            <h3>سجل الألعاب السابقة</h3>
+            <div id="gameHistory" class="history-container"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="newGame()" class="new-game">🎮 لعبة جديدة</button>
+            <button onclick="undoLastRound()" class="undo">↩️ تراجع</button>
+            <button onclick="resetStats()" class="reset-stats">🔄 إعادة تعيين الإحصائيات</button>
+        </div>
+
+        <div class="winner" id="winnerDisplay"></div>
+    </div>
+    <script src="script.js"></script>
+    <!-- النافذة المنبثقة -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="creator-modal" id="creatorModal">
+        <h3>معلومات عن المطور</h3>
+        <p>تم تطوير هذا التطبيق بواسطة</p>
+        <h2>محمد عالي الجش</h2>
+        <p>للتواصل: <a href="mailto:buyer997@hotmail.com">buyer997@hotmail.com</a></p>
+    </div>
+</body>
+</html>

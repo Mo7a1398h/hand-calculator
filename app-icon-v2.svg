@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- خلفية زرقاء -->
+    <rect width="512" height="512" rx="64" fill="#1A237E"/>
+    
+    <!-- الورقة الخلفية -->
+    <rect x="128" y="96" width="320" height="384" rx="24" 
+          transform="rotate(15 256 256)" 
+          fill="#D32F2F" stroke="#B71C1C" stroke-width="8"/>
+    
+    <!-- الورقة الأمامية -->
+    <rect x="64" y="32" width="320" height="384" rx="24" 
+          transform="rotate(-15 256 256)" 
+          fill="#2196F3" stroke="#1565C0" stroke-width="8"/>
+    
+    <!-- زخرفة الورقة الأمامية -->
+    <path d="M256 128L288 224H384L304 288L336 384L256 320L176 384L208 288L128 224H224L256 128Z" 
+          transform="rotate(-15 256 256)" 
+          fill="white"/>
+    
+    <!-- الزوايا -->
+    <circle cx="112" cy="96" r="16" fill="white" transform="rotate(-15 256 256)"/>
+    <circle cx="400" cy="96" r="16" fill="white" transform="rotate(-15 256 256)"/>
+    <circle cx="112" cy="352" r="16" fill="white" transform="rotate(-15 256 256)"/>
+    <circle cx="400" cy="352" r="16" fill="white" transform="rotate(-15 256 256)"/>
+</svg>

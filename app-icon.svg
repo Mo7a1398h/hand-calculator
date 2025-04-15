@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- خلفية -->
+    <rect width="180" height="180" rx="45" fill="#1A237E"/>
+    
+    <!-- الورقة الخلفية -->
+    <g transform="translate(90 90) rotate(15) translate(-90 -90)">
+        <rect x="30" y="20" width="120" height="160" rx="15" 
+              fill="#D32F2F" stroke="#B71C1C" stroke-width="4"/>
+        <circle cx="45" cy="35" r="8" fill="white"/>
+        <circle cx="135" cy="35" r="8" fill="white"/>
+        <circle cx="45" cy="165" r="8" fill="white"/>
+        <circle cx="135" cy="165" r="8" fill="white"/>
+    </g>
+    
+    <!-- الورقة الأمامية -->
+    <g transform="translate(90 90) rotate(-15) translate(-90 -90)">
+        <rect x="30" y="20" width="120" height="160" rx="15" 
+              fill="#2196F3" stroke="#1565C0" stroke-width="4"/>
+        <circle cx="45" cy="35" r="8" fill="white"/>
+        <circle cx="135" cy="35" r="8" fill="white"/>
+        <circle cx="45" cy="165" r="8" fill="white"/>
+        <circle cx="135" cy="165" r="8" fill="white"/>
+        <!-- نقش على الورقة الأمامية -->
+        <path d="M90 45L102 75H132L108 95L120 125L90 105L60 125L72 95L48 75H78L90 45Z" 
+              fill="white"/>
+    </g>
+</svg>

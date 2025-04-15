@@ -292,11 +292,17 @@ function addScore(playerNum) {
 // تحديث سجل الجولات
 function updateRoundCounter(isSpecialMove = false) {
     let currentRound;
+    // حساب عدد الجولات العادية فقط (بدون النزول والخصم)
+    const normalRounds = gameState.rounds.filter(round => 
+        !(round.player1Down || round.player2Down || round.player1Minus || round.player2Minus)
+    ).length;
+
     if (isSpecialMove) {
-        currentRound = gameState.rounds.length + 1;
+        currentRound = normalRounds + 1;
     } else {
-        currentRound = gameState.rounds.length;
+        currentRound = normalRounds;
     }
+    
     document.getElementById('currentRound').textContent = currentRound;
     document.getElementById('maxRounds').textContent = gameState.maxRounds;
     document.getElementById('maxRoundsInput').value = gameState.maxRounds;

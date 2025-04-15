@@ -3,6 +3,12 @@
   "short_name": "حاسبة الهند",
   "icons": [
     {
+      "src": "playing-card-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
@@ -14,7 +20,9 @@
     }
   ],
   "theme_color": "#1A237E",
-  "background_color": "#1A237E",
+  "background_color": "#ffffff",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "scope": "/hand-calculator/",
+  "start_url": "/hand-calculator/"
 }

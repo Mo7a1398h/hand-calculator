@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- خلفية البطاقة -->
+    <rect x="56" y="36" width="400" height="440" rx="20" fill="white" stroke="#1A237E" stroke-width="16"/>
+    
+    <!-- زخرفة الزوايا العليا -->
+    <path d="M96 76 L136 76 L116 116 Z" fill="#E53935"/>
+    <text x="96" y="106" font-family="Arial" font-size="24" fill="#1A237E">♠</text>
+    
+    <!-- زخرفة الزوايا السفلى -->
+    <path d="M416 436 L376 436 L396 396 Z" fill="#E53935"/>
+    <text x="376" y="426" font-family="Arial" font-size="24" fill="#1A237E">♠</text>
+    
+    <!-- الرمز الرئيسي في المنتصف -->
+    <text x="256" y="276" font-family="Arial" font-size="160" text-anchor="middle" fill="#1A237E">♠</text>
+</svg>

@@ -187,7 +187,8 @@ function resetStats() {
         gameState.player2.totalGames = 0;
         gameState.player2.wins = 0;
         updateStats();
-        localStorage.removeItem('gameStats');
+        saveStats(); // حفظ التغييرات في التخزين المحلي
+        playSound('reset'); // تشغيل صوت إعادة التعيين
     }
 }
 
@@ -492,16 +493,16 @@ function newGame() {
 
 // التراجع عن آخر جولة
 function undoLastRound() {
-    playSound('undo');
-    if (gameState.rounds.length === gameState.maxRounds) {
-        // إعادة تفعيل الأزرار عند التراجع عن الجولة الأخيرة
-        enableGameButtons();
-    }
-
-
     if (gameState.rounds.length === 0) {
         alert('لا توجد جولات للتراجع عنها');
         return;
+    }
+
+    playSound('undo');
+    
+    if (gameState.rounds.length === gameState.maxRounds) {
+        // إعادة تفعيل الأزرار عند التراجع عن الجولة الأخيرة
+        enableGameButtons();
     }
 
     const lastRound = gameState.rounds.pop();
@@ -514,6 +515,7 @@ function undoLastRound() {
     document.getElementById('player1Total').textContent = gameState.player1.total;
     document.getElementById('player2Total').textContent = gameState.player2.total;
     document.getElementById('winnerDisplay').textContent = '';
+    document.getElementById('currentRound').textContent = gameState.rounds.length;
     
     updateRoundHistory();
 }

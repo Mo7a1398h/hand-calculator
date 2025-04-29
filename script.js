@@ -517,3 +517,41 @@ function undoLastRound() {
     
     updateRoundHistory();
 }
+
+// تصدير النتائج إلى PDF
+function exportToPDF() {
+    // تحضير المحتوى للتصدير
+    const content = document.querySelector('.container').cloneNode(true);
+    
+    // إزالة الأزرار والعناصر غير المطلوبة
+    content.querySelectorAll('button, input, .down-calculator, .controls').forEach(el => el.remove());
+    
+    // إضافة التاريخ
+    const dateDiv = document.createElement('div');
+    dateDiv.style.textAlign = 'center';
+    dateDiv.style.marginTop = '20px';
+    dateDiv.style.fontSize = '14px';
+    dateDiv.textContent = new Date().toLocaleDateString('ar-SA');
+    content.appendChild(dateDiv);
+
+    // خيارات التصدير
+    const opt = {
+        margin: 1,
+        filename: 'نتيجة_لعبة_الهند.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            letterRendering: true
+        },
+        jsPDF: { 
+            unit: 'cm', 
+            format: 'a4', 
+            orientation: 'portrait'
+        }
+    };
+
+    // تصدير المحتوى إلى PDF
+    html2pdf().set(opt).from(content).save();
+}

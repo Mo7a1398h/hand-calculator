@@ -518,37 +518,3 @@ function undoLastRound() {
     updateRoundHistory();
 }
 
-// تصدير النتائج إلى ملف نصي
-function exportToImage() {
-    // إنشاء نص النتيجة
-    const player1Name = document.getElementById('player1Name').value || 'الفريق 1';
-    const player2Name = document.getElementById('player2Name').value || 'الفريق 2';
-    const player1Total = document.getElementById('player1Total').textContent;
-    const player2Total = document.getElementById('player2Total').textContent;
-    
-    // إنشاء نص للمشاركة
-    const text = `🎮 نتيجة لعبة الهند\n\n` +
-                `${player1Name}: ${player1Total} نقطة\n` +
-                `${player2Name}: ${player2Total} نقطة\n\n` +
-                `${new Date().toLocaleDateString('ar-SA')}`;
-    
-    // إنشاء ملف نصي
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    // إنشاء رابط للتحميل
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'نتيجة_لعبة_الهند.txt';
-    
-    // تنزيل الملف
-    document.body.appendChild(link);
-    link.click();
-    
-    // تنظيف
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    // عرض رسالة نجاح
-    alert('تم حفظ النتيجة بنجاح!');
-}

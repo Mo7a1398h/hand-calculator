@@ -518,18 +518,20 @@ function undoLastRound() {
     updateRoundHistory();
 }
 
-// تصدير النتائج إلى PDF
-async function exportToPDF() {
+// تصدير النتائج إلى صورة
+async function exportToImage() {
     try {
         // إنشاء نسخة من المحتوى للتصدير
         const container = document.querySelector('.container');
         const exportDiv = document.createElement('div');
         exportDiv.innerHTML = container.innerHTML;
-        exportDiv.style.width = '21cm'; // عرض A4
+        exportDiv.style.width = '100%';
+        exportDiv.style.maxWidth = '800px';
         exportDiv.style.margin = '0 auto';
         exportDiv.style.direction = 'rtl';
         exportDiv.style.backgroundColor = '#ffffff';
-        exportDiv.style.padding = '1cm';
+        exportDiv.style.padding = '20px';
+        exportDiv.style.boxSizing = 'border-box';
         
         // إزالة العناصر غير المطلوبة
         exportDiv.querySelectorAll('button, input, .down-calculator, .controls, .share-buttons').forEach(el => {
@@ -547,36 +549,27 @@ async function exportToPDF() {
 
         // إضافة div مؤقت للتصدير
         document.body.appendChild(exportDiv);
-        
-        // خيارات التصدير
-        const opt = {
-            margin: 1,
-            filename: 'نتيجة_لعبة_الهند.pdf',
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { 
-                scale: 2,
-                useCORS: true,
-                logging: true,
-                letterRendering: true,
-                windowWidth: 800,
-                windowHeight: 1200,
-                scrollX: 0,
-                scrollY: 0
-            },
-            jsPDF: { 
-                unit: 'cm', 
-                format: 'a4', 
-                orientation: 'portrait'
-            }
-        };
 
-        // تصدير المحتوى إلى PDF
-        await html2pdf().set(opt).from(exportDiv).save();
+        // تحويل المحتوى إلى صورة
+        const canvas = await html2canvas(exportDiv, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            letterRendering: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        });
+
+        // إنشاء رابط لتحميل الصورة
+        const link = document.createElement('a');
+        link.download = 'نتيجة_لعبة_الهند.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
         
         // إزالة div التصدير
         document.body.removeChild(exportDiv);
     } catch (error) {
-        console.error('خطأ في تصدير PDF:', error);
-        alert('حدث خطأ أثناء تصدير PDF. الرجاء المحاولة مرة أخرى.');
+        console.error('خطأ في تصدير الصورة:', error);
+        alert('حدث خطأ أثناء تصدير الصورة. الرجاء المحاولة مرة أخرى.');
     }
 }

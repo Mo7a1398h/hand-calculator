@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>App Icon Generator</title>
+</head>
+<body>
+    <canvas id="icon" width="512" height="512"></canvas>
+    <script>
+        const canvas = document.getElementById('icon');
+        const ctx = canvas.getContext('2d');
+        
+        // خلفية دائرية متدرجة
+        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+        gradient.addColorStop(0, '#4a90e2');
+        gradient.addColorStop(1, '#357abd');
+        
+        // رسم الخلفية الدائرية
+        ctx.beginPath();
+        ctx.arc(256, 256, 250, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // رسم ورقة اللعب
+        ctx.fillStyle = 'white';
+        ctx.roundRect(156, 106, 200, 300, 15);
+        ctx.fill();
+        
+        // زخرفة الورقة
+        ctx.fillStyle = '#f8f9fa';
+        ctx.strokeStyle = '#e9ecef';
+        ctx.lineWidth = 2;
+        ctx.roundRect(176, 126, 160, 260, 10);
+        ctx.fill();
+        ctx.stroke();
+        
+        // حرف ه للهند
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 150px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ه', 256, 300);
+        
+        // تحميل الصور
+        const link192 = document.createElement('a');
+        link192.download = 'icon-192.png';
+        canvas.width = 192;
+        canvas.height = 192;
+        link192.href = canvas.toDataURL();
+        link192.click();
+        
+        const link512 = document.createElement('a');
+        link512.download = 'icon-512.png';
+        canvas.width = 512;
+        canvas.height = 512;
+        link512.href = canvas.toDataURL();
+        link512.click();
+    </script>
+</body>
+</html>

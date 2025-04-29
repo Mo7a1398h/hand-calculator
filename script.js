@@ -519,39 +519,64 @@ function undoLastRound() {
 }
 
 // تصدير النتائج إلى PDF
-function exportToPDF() {
-    // تحضير المحتوى للتصدير
-    const content = document.querySelector('.container').cloneNode(true);
-    
-    // إزالة الأزرار والعناصر غير المطلوبة
-    content.querySelectorAll('button, input, .down-calculator, .controls').forEach(el => el.remove());
-    
-    // إضافة التاريخ
-    const dateDiv = document.createElement('div');
-    dateDiv.style.textAlign = 'center';
-    dateDiv.style.marginTop = '20px';
-    dateDiv.style.fontSize = '14px';
-    dateDiv.textContent = new Date().toLocaleDateString('ar-SA');
-    content.appendChild(dateDiv);
+async function exportToPDF() {
+    try {
+        // إنشاء نسخة من المحتوى للتصدير
+        const container = document.querySelector('.container');
+        const exportDiv = document.createElement('div');
+        exportDiv.innerHTML = container.innerHTML;
+        exportDiv.style.width = '21cm'; // عرض A4
+        exportDiv.style.margin = '0 auto';
+        exportDiv.style.direction = 'rtl';
+        exportDiv.style.backgroundColor = '#ffffff';
+        exportDiv.style.padding = '1cm';
+        
+        // إزالة العناصر غير المطلوبة
+        exportDiv.querySelectorAll('button, input, .down-calculator, .controls, .share-buttons').forEach(el => {
+            if (el) el.remove();
+        });
+        
+        // إضافة التاريخ
+        const dateDiv = document.createElement('div');
+        dateDiv.style.textAlign = 'center';
+        dateDiv.style.marginTop = '20px';
+        dateDiv.style.fontSize = '14px';
+        dateDiv.style.fontFamily = 'Arial, sans-serif';
+        dateDiv.textContent = new Date().toLocaleDateString('ar-SA');
+        exportDiv.appendChild(dateDiv);
 
-    // خيارات التصدير
-    const opt = {
-        margin: 1,
-        filename: 'نتيجة_لعبة_الهند.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            letterRendering: true
-        },
-        jsPDF: { 
-            unit: 'cm', 
-            format: 'a4', 
-            orientation: 'portrait'
-        }
-    };
+        // إضافة div مؤقت للتصدير
+        document.body.appendChild(exportDiv);
+        
+        // خيارات التصدير
+        const opt = {
+            margin: 1,
+            filename: 'نتيجة_لعبة_الهند.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                letterRendering: true,
+                windowWidth: 800,
+                windowHeight: 1200,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF: { 
+                unit: 'cm', 
+                format: 'a4', 
+                orientation: 'portrait'
+            }
+        };
 
-    // تصدير المحتوى إلى PDF
-    html2pdf().set(opt).from(content).save();
+        // تصدير المحتوى إلى PDF
+        await html2pdf().set(opt).from(exportDiv).save();
+        
+        // إزالة div التصدير
+        document.body.removeChild(exportDiv);
+    } catch (error) {
+        console.error('خطأ في تصدير PDF:', error);
+        alert('حدث خطأ أثناء تصدير PDF. الرجاء المحاولة مرة أخرى.');
+    }
 }

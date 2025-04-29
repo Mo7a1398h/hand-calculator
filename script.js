@@ -518,58 +518,37 @@ function undoLastRound() {
     updateRoundHistory();
 }
 
-// تصدير النتائج إلى صورة
-async function exportToImage() {
-    try {
-        // إنشاء نسخة من المحتوى للتصدير
-        const container = document.querySelector('.container');
-        const exportDiv = document.createElement('div');
-        exportDiv.innerHTML = container.innerHTML;
-        exportDiv.style.width = '100%';
-        exportDiv.style.maxWidth = '800px';
-        exportDiv.style.margin = '0 auto';
-        exportDiv.style.direction = 'rtl';
-        exportDiv.style.backgroundColor = '#ffffff';
-        exportDiv.style.padding = '20px';
-        exportDiv.style.boxSizing = 'border-box';
-        
-        // إزالة العناصر غير المطلوبة
-        exportDiv.querySelectorAll('button, input, .down-calculator, .controls, .share-buttons').forEach(el => {
-            if (el) el.remove();
-        });
-        
-        // إضافة التاريخ
-        const dateDiv = document.createElement('div');
-        dateDiv.style.textAlign = 'center';
-        dateDiv.style.marginTop = '20px';
-        dateDiv.style.fontSize = '14px';
-        dateDiv.style.fontFamily = 'Arial, sans-serif';
-        dateDiv.textContent = new Date().toLocaleDateString('ar-SA');
-        exportDiv.appendChild(dateDiv);
+// تصدير النتائج إلى ملف نصي
+function exportToImage() {
+    // إنشاء نص النتيجة
+    const player1Name = document.getElementById('player1Name').value || 'الفريق 1';
+    const player2Name = document.getElementById('player2Name').value || 'الفريق 2';
+    const player1Total = document.getElementById('player1Total').textContent;
+    const player2Total = document.getElementById('player2Total').textContent;
+    
+    // إنشاء نص للمشاركة
+    const text = `🎮 نتيجة لعبة الهند\n\n` +
+                `${player1Name}: ${player1Total} نقطة\n` +
+                `${player2Name}: ${player2Total} نقطة\n\n` +
+                `${new Date().toLocaleDateString('ar-SA')}`;
+    
+    // إنشاء ملف نصي
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // إنشاء رابط للتحميل
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'نتيجة_لعبة_الهند.txt';
+    
+    // تنزيل الملف
+    document.body.appendChild(link);
+    link.click();
+    
+    // تنظيف
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
-        // إضافة div مؤقت للتصدير
-        document.body.appendChild(exportDiv);
-
-        // تحويل المحتوى إلى صورة
-        const canvas = await html2canvas(exportDiv, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            letterRendering: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff'
-        });
-
-        // إنشاء رابط لتحميل الصورة
-        const link = document.createElement('a');
-        link.download = 'نتيجة_لعبة_الهند.jpg';
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        link.click();
-        
-        // إزالة div التصدير
-        document.body.removeChild(exportDiv);
-    } catch (error) {
-        console.error('خطأ في تصدير الصورة:', error);
-        alert('حدث خطأ أثناء تصدير الصورة. الرجاء المحاولة مرة أخرى.');
-    }
+    // عرض رسالة نجاح
+    alert('تم حفظ النتيجة بنجاح!');
 }

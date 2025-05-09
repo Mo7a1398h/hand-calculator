@@ -40,16 +40,60 @@
                 <h2>الفريق 1</h2>
                 <input type="text" id="player1Name" placeholder="اسم الفريق 1" class="player-name">
                 <div class="special-moves">
-                    <button onclick="addSpecialMove(1, 'khales')" class="special-btn khales">خالص</button>
-                    <button onclick="addSpecialMove(1, 'hand')" class="special-btn hand">هند</button>
-                    <button onclick="addSpecialMove(1, 'ajkari')" class="special-btn ajkari">أجكري</button>
-                    <button onclick="addSpecialMove(1, 'amkari')" class="special-btn amkari">أمكري</button>
-                    <button onclick="addSpecialMove(1, 'amkariWalon')" class="special-btn amkari-walon">أمكري ولون</button>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(1, 'khales')" class="move-btn khales">
+                            <i class="fas fa-star"></i>
+                            خالص
+                        </button>
+                        <button onclick="addSpecialMove(1, 'khales', true)" class="move-btn khales down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول خالص
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(1, 'hand')" class="move-btn hand">
+                            <i class="fas fa-hand-paper"></i>
+                            هند
+                        </button>
+                        <button onclick="addSpecialMove(1, 'hand', true)" class="move-btn hand down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول هند
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(1, 'ajkari')" class="move-btn ajkari">
+                            <i class="fas fa-crown"></i>
+                            أجكري
+                        </button>
+                        <button onclick="addSpecialMove(1, 'ajkari', true)" class="move-btn ajkari down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أجكري
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(1, 'amkari')" class="move-btn amkari">
+                            <i class="fas fa-chess-queen"></i>
+                            أمكري
+                        </button>
+                        <button onclick="addSpecialMove(1, 'amkari', true)" class="move-btn amkari down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أمكري
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(1, 'amkariWalon')" class="move-btn amkari-walon">
+                            <i class="fas fa-chess-king"></i>
+                            أمكري ولون
+                        </button>
+                        <button onclick="addSpecialMove(1, 'amkariWalon', true)" class="move-btn amkari-walon down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أمكري ولون
+                        </button>
+                    </div>
                 </div>
                 <div class="score-input">
                     <div class="score-row">
-                        <input type="number" id="player1Score" placeholder="النقاط" min="0">
-                        <input type="number" id="player1Down" placeholder="نزول" min="0" class="down-input">
+                        <input type="number" id="player1Down" placeholder="إضافة" min="0" class="down-input">
                         <input type="number" id="player1Minus" placeholder="خصم" min="0" class="minus-input">
                     </div>
                     <button onclick="addScore(1)">إضافة</button>
@@ -62,16 +106,60 @@
                 <h2>الفريق 2</h2>
                 <input type="text" id="player2Name" placeholder="اسم الفريق 2" class="player-name">
                 <div class="special-moves">
-                    <button onclick="addSpecialMove(2, 'khales')" class="special-btn khales">خالص</button>
-                    <button onclick="addSpecialMove(2, 'hand')" class="special-btn hand">هند</button>
-                    <button onclick="addSpecialMove(2, 'ajkari')" class="special-btn ajkari">أجكري</button>
-                    <button onclick="addSpecialMove(2, 'amkari')" class="special-btn amkari">أمكري</button>
-                    <button onclick="addSpecialMove(2, 'amkariWalon')" class="special-btn amkari-walon">أمكري ولون</button>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(2, 'khales')" class="move-btn khales">
+                            <i class="fas fa-star"></i>
+                            خالص
+                        </button>
+                        <button onclick="addSpecialMove(2, 'khales', true)" class="move-btn khales down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول خالص
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(2, 'hand')" class="move-btn hand">
+                            <i class="fas fa-hand-paper"></i>
+                            هند
+                        </button>
+                        <button onclick="addSpecialMove(2, 'hand', true)" class="move-btn hand down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول هند
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(2, 'ajkari')" class="move-btn ajkari">
+                            <i class="fas fa-crown"></i>
+                            أجكري
+                        </button>
+                        <button onclick="addSpecialMove(2, 'ajkari', true)" class="move-btn ajkari down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أجكري
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(2, 'amkari')" class="move-btn amkari">
+                            <i class="fas fa-chess-queen"></i>
+                            أمكري
+                        </button>
+                        <button onclick="addSpecialMove(2, 'amkari', true)" class="move-btn amkari down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أمكري
+                        </button>
+                    </div>
+                    <div class="move-group">
+                        <button onclick="addSpecialMove(2, 'amkariWalon')" class="move-btn amkari-walon">
+                            <i class="fas fa-chess-king"></i>
+                            أمكري ولون
+                        </button>
+                        <button onclick="addSpecialMove(2, 'amkariWalon', true)" class="move-btn amkari-walon down">
+                            <i class="fas fa-arrow-down"></i>
+                            نزول أمكري ولون
+                        </button>
+                    </div>
                 </div>
                 <div class="score-input">
                     <div class="score-row">
-                        <input type="number" id="player2Score" placeholder="النقاط" min="0">
-                        <input type="number" id="player2Down" placeholder="نزول" min="0" class="down-input">
+                        <input type="number" id="player2Down" placeholder="إضافة" min="0" class="down-input">
                         <input type="number" id="player2Minus" placeholder="خصم" min="0" class="minus-input">
                     </div>
                     <button onclick="addScore(2)">إضافة</button>
@@ -138,10 +226,9 @@
     <!-- النافذة المنبثقة -->
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="creator-modal" id="creatorModal">
-        <h3>معلومات عن المطور</h3>
-        <p>تم تطوير هذا التطبيق بواسطة</p>
-        <h2>محمد عالي الجش</h2>
-        <p>للتواصل: <a href="mailto:buyer997@hotmail.com">buyer997@hotmail.com</a></p>
+        <h3>معلومات عن التطبيق</h3>
+        <p>حاسبة الهند - تطبيق لحساب نقاط لعبة الهند</p>
+        <p>للمساعدة: <a href="mailto:buyer997@hotmail.com">buyer997@hotmail.com</a></p>
     </div>
 </body>
 </html>

@@ -5,26 +5,31 @@ const specialMoves = {
     khales: {
         name: 'خالص',
         penalty: 200,
+        down: 100,
         bonus: -30
     },
     hand: {
         name: 'هند',
         penalty: 400,
+        down: 200,
         bonus: -60
     },
     ajkari: {
         name: 'أجكري',
         penalty: 800,
+        down: 400,
         bonus: -120
     },
     amkari: {
         name: 'أمكري',
         penalty: 1600,
+        down: 800,
         bonus: -240
     },
     amkariWalon: {
         name: 'أمكري ولون',
         penalty: 2400,
+        down: 1600,
         bonus: -320
     }
 };
@@ -95,45 +100,44 @@ document.getElementById('player2Name').addEventListener('input', function(e) {
 });
 
 // إضافة نقاط للاعب
-function addSpecialMove(playerNum, moveType) {
+function addSpecialMove(playerNum, moveType, isDown = false) {
     const move = specialMoves[moveType];
+    const score = isDown ? move.down : move.penalty;
+    const bonus = move.bonus;
 
-    // تحديث نقاط اللاعبين مباشرة
-    if (playerNum === 1) {
-        // اللاعب 1 حقق الحركة
-        gameState.player1.total += move.bonus;      // يحصل على المكافأة (سالبة)
-        gameState.player2.total += move.penalty;    // يحصل على الغرامة (موجبة)
-    } else {
-        // اللاعب 2 حقق الحركة
-        gameState.player2.total += move.bonus;      // يحصل على المكافأة (سالبة)
-        gameState.player1.total += move.penalty;    // يحصل على الغرامة (موجبة)
-    }
+    // اللاعب الحالي والخصم
+    const currentPlayerTotal = document.getElementById(`player${playerNum}Total`);
+    const otherPlayerTotal = document.getElementById(`player${playerNum === 1 ? 2 : 1}Total`);
+    
+    // القيم الحالية
+    const currentPlayerScore = parseInt(currentPlayerTotal.textContent) || 0;
+    const otherPlayerScore = parseInt(otherPlayerTotal.textContent) || 0;
+    
+    // تحديث النقاط
+    currentPlayerTotal.textContent = currentPlayerScore + bonus;  // يحصل على المكافأة (سالبة)
+    otherPlayerTotal.textContent = otherPlayerScore + score;    // يحصل على الغرامة (موجبة)
 
-    // إضافة الحركة إلى سجل الجولات
+    // تحديث حالة اللعبة
+    gameState[`player${playerNum}`].total = parseInt(currentPlayerTotal.textContent);
+    gameState[`player${playerNum === 1 ? 2 : 1}`].total = parseInt(otherPlayerTotal.textContent);
+
+    // تسجيل الحركة
     gameState.rounds.push({
-        player1Score: playerNum === 1 ? move.bonus : move.penalty,
-        player2Score: playerNum === 2 ? move.bonus : move.penalty,
-        specialMove: {
-            type: moveType,
-            winner: playerNum
-        }
+        player: playerNum,
+        moveType: moveType,
+        isDown: isDown,
+        details: `اللاعب ${playerNum}: ${isDown ? `نزول ${move.name} (عليه ${score}، له ${bonus})` : `${move.name} (عليه ${score}، له ${bonus})`}`
     });
 
-    // تحديث المجموع
-    document.getElementById(`player1Total`).textContent = gameState.player1.total;
-    document.getElementById(`player2Total`).textContent = gameState.player2.total;
-
-    // تحديث عداد الجولات مع الحركات الخاصة
-    updateRoundCounter(true);
-
     // تحديث سجل الجولات
-    updateRoundHistory(true);
+    updateRoundHistory();
+
+    // تشغيل صوت النقر
+    playSound('button');
 
     // التحقق من الفائز
     checkWinner();
 }
-
-
 
 function updateMaxRounds() {
     const newMaxRounds = parseInt(document.getElementById('maxRoundsInput').value);
@@ -204,86 +208,72 @@ function saveStats() {
 }
 
 function addScore(playerNum) {
-    const scoreInput = document.getElementById(`player${playerNum}Score`);
-    const downInput = document.getElementById(`player${playerNum}Down`);
+    // الحصول على قيم الإدخال
+    const addInput = document.getElementById(`player${playerNum}Down`);
     const minusInput = document.getElementById(`player${playerNum}Minus`);
-    let score = parseInt(scoreInput.value) || 0;
-    const down = parseInt(downInput.value) || 0;
-    const minus = parseInt(minusInput.value) || 0;
     
-    if (isNaN(score) || score < 0) {
-        alert('الرجاء إدخال رقم صحيح موجب');
-        return;
-    }
-
-    const player = gameState[`player${playerNum}`];
-    const otherPlayerNum = playerNum === 1 ? 2 : 1;
-    const otherPlayer = gameState[`player${otherPlayerNum}`];
-
-    // إذا كان هناك نزول، نطبق الحسابات على النزول فقط
-    if (down > 0) {
-        score = down;
-    }
-
-    player.scores.push(score);
-    player.total += score;
-
-    // تطبيق الخصم من المجموع مباشرة
-    if (minus > 0) {
-        player.total = Math.max(0, player.total - minus);
-    }
-
-    // تحديث المجموع المعروض
-    document.getElementById(`player${playerNum}Total`).textContent = player.total;
+    // تحويل القيم إلى أرقام
+    let addValue = parseInt(addInput.value);
+    let minusValue = parseInt(minusInput.value);
     
-    // الحصول على نقاط اللاعب الآخر
-    const otherScoreInput = document.getElementById(`player${otherPlayerNum}Score`);
-    const otherDownInput = document.getElementById(`player${otherPlayerNum}Down`);
-    const otherMinusInput = document.getElementById(`player${otherPlayerNum}Minus`);
-    let otherScore = parseInt(otherScoreInput.value) || 0;
-    const otherDown = parseInt(otherDownInput.value) || 0;
-    const otherMinus = parseInt(otherMinusInput.value) || 0;
-
-    if (isNaN(otherScore) || otherScore < 0) {
-        alert('الرجاء إدخال رقم صحيح موجب للاعب الآخر');
-        return;
+    // التحقق من صحة القيم
+    if (isNaN(addValue)) addValue = 0;
+    if (isNaN(minusValue)) minusValue = 0;
+    
+    // الحصول على مجموع النقاط الحالي
+    const totalElement = document.getElementById(`player${playerNum}Total`);
+    let currentTotal = parseInt(totalElement.textContent) || 0;
+    
+    // إضافة النقاط الجديدة إلى المجموع
+    if (addValue > 0) {
+        // إذا كان المجموع الحالي سالب، نضيف القيمة سالبة
+        if (currentTotal < 0) {
+            currentTotal -= addValue;
+        } else {
+            // إذا كان المجموع الحالي موجب، نطرح القيمة
+            currentTotal -= addValue;
+        }
+    }
+    
+    // خصم النقاط من المجموع
+    if (minusValue > 0) {
+        // إذا كان المجموع الحالي سالب، نضيف القيمة المخصومة
+        if (currentTotal < 0) {
+            currentTotal += minusValue;
+        } else {
+            // إذا كان المجموع الحالي موجب، نضيف القيمة المخصومة
+            currentTotal += minusValue;
+        }
+    }
+    
+    // تحديث المجموع في واجهة المستخدم وحالة اللعبة
+    totalElement.textContent = currentTotal;
+    gameState[`player${playerNum}`].total = currentTotal;
+    
+    // تسجيل الحركة في سجل الجولات
+    if (addValue > 0 || minusValue > 0) {
+        const details = [];
+        if (addValue > 0) details.push(`إضافة ${addValue}`);
+        if (minusValue > 0) details.push(`خصم ${minusValue}`);
+        
+        gameState.rounds.push({
+            player: playerNum,
+            add: addValue,
+            minus: minusValue,
+            newTotal: currentTotal,
+            details: `اللاعب ${playerNum}: ${details.join(' - ')}`
+        });
+        
+        // تحديث سجل الجولات
+        updateRoundHistory();
     }
 
-    // إذا كان هناك نزول للاعب الآخر، نطبق الحسابات على النزول فقط
-    if (otherDown > 0) {
-        otherScore = otherDown;
-    }
-
-    // تحديث نقاط اللاعب الآخر
-    otherPlayer.scores.push(otherScore);
-    otherPlayer.total += otherScore;
-
-    // تطبيق الخصم من المجموع مباشرة
-    if (otherMinus > 0) {
-        otherPlayer.total = Math.max(0, otherPlayer.total - otherMinus);
-    }
-    document.getElementById(`player${otherPlayerNum}Total`).textContent = otherPlayer.total;
-
-    // إضافة الجولة إلى السجل
-    gameState.rounds.push({
-        player1Score: playerNum === 1 ? score : otherScore,
-        player2Score: playerNum === 2 ? score : otherScore,
-        player1Down: playerNum === 1 ? down : otherDown,
-        player2Down: playerNum === 2 ? down : otherDown,
-        player1Minus: playerNum === 1 ? minus : otherMinus,
-        player2Minus: playerNum === 2 ? minus : otherMinus
-    });
-
-    // تفريغ حقول الإدخال
-    scoreInput.value = '';
-    downInput.value = '';
+    // مسح حقول الإدخال
+    addInput.value = '';
     minusInput.value = '';
-    otherScoreInput.value = '';
-    otherDownInput.value = '';
-    otherMinusInput.value = '';
 
-    // تحديث سجل الجولات فقط
-    updateRoundHistory(false);
+    // تشغيل صوت النقر
+    playSound('button');
 
     // التحقق من الفائز
     checkWinner();

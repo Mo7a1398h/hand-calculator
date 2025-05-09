@@ -1,5 +1,35 @@
 const TOTAL_ROUNDS = 7; // عدد الجولات الثابت
 
+// معاملات الضرب للنزول
+const DOWN_MULTIPLIERS = {
+    hand: 2,
+    ajkari: 4,
+    amkari: 8,
+    amkariWalon: 12
+};
+
+// تحديث نتيجة حاسبة النزول
+function updateDownCalculator() {
+    const input = document.getElementById('downCalculatorInput');
+    const type = document.getElementById('downCalculatorType');
+    const result = document.getElementById('downCalculatorResult');
+    
+    const value = parseInt(input.value) || 0;
+    const multiplier = DOWN_MULTIPLIERS[type.value];
+    
+    result.textContent = value * multiplier;
+}
+
+// إضافة مستمعي الأحداث لحاسبة النزول
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('downCalculatorInput');
+    const type = document.getElementById('downCalculatorType');
+    
+    input.addEventListener('input', updateDownCalculator);
+    type.addEventListener('change', updateDownCalculator);
+});
+
+
 
 const specialMoves = {
     khales: {
@@ -65,9 +95,69 @@ function showCreator() {
 document.addEventListener('DOMContentLoaded', initTheme);
 
 // استرجاع سجل الألعاب من الذاكرة المحلية
+// وظيفة التحكم في العداد
+function handleTimerClick() {
+    if (isTimerRunning) {
+        stopTimer();
+    } else {
+        startTimer();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     updateGameHistory();
+    resetTimer(); // تهيئة العداد عند تحميل الصفحة
 });
+
+// متغيرات العداد
+let timerInterval;
+let startTime;
+let isTimerRunning = false;
+
+// وظيفة بدء العداد
+function startTimer() {
+    if (!isTimerRunning) {
+        startTime = Date.now();
+        isTimerRunning = true;
+        timerInterval = setInterval(updateTimer, 1000);
+        document.getElementById('startTimerBtn').innerHTML = '<i class="fas fa-pause"></i>';
+        document.getElementById('startTimerBtn').classList.add('running');
+    }
+}
+
+// وظيفة إيقاف العداد
+function stopTimer() {
+    if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        document.getElementById('startTimerBtn').innerHTML = '<i class="fas fa-play"></i>';
+        document.getElementById('startTimerBtn').classList.remove('running');
+    }
+}
+
+// وظيفة إعادة ضبط العداد
+function resetTimer() {
+    stopTimer();
+    document.getElementById('timer').textContent = '00:00:00';
+}
+
+// وظيفة تحديث العداد
+function updateTimer() {
+    const currentTime = Date.now();
+    const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+    
+    const hours = Math.floor(elapsedTime / 3600);
+    const minutes = Math.floor((elapsedTime % 3600) / 60);
+    const seconds = elapsedTime % 60;
+    
+    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timer').textContent = timeString;
+    
+    // إضافة تأثير تحذيري عندما يتجاوز الوقت ساعة
+    if (hours >= 1) {
+        document.getElementById('timer').classList.add('warning');
+    }
+}
 
 let gameState = {
     player1: {
@@ -87,7 +177,10 @@ let gameState = {
         wins: parseInt(localStorage.getItem('player2Wins')) || 0
     },
     rounds: [],
-    maxRounds: parseInt(localStorage.getItem('maxRounds')) || 7
+    maxRounds: parseInt(localStorage.getItem('maxRounds')) || 7,
+    currentRound: 1,
+    startTime: null,
+    timerInterval: null
 };
 
 // تحديث أسماء اللاعبين عند الكتابة
@@ -132,6 +225,9 @@ function addSpecialMove(playerNum, moveType, isDown = false) {
     // تحديث سجل الجولات
     updateRoundHistory();
 
+    // تحديث رقم الجولة
+    updateRoundCounter(true);
+
     // تشغيل صوت النقر
     playSound('button');
 
@@ -148,18 +244,7 @@ function updateMaxRounds() {
     }
 }
 
-function resetStats() {
-    if (confirm('هل أنت متأكد من إعادة تعيين جميع الإحصائيات؟')) {
-        gameState.player1.highScore = 0;
-        gameState.player1.totalGames = 0;
-        gameState.player1.wins = 0;
-        gameState.player2.highScore = 0;
-        gameState.player2.totalGames = 0;
-        gameState.player2.wins = 0;
-        updateStats();
-        localStorage.removeItem('gameStats');
-    }
-}
+
 
 function updateStats() {
     // تحديث إحصائيات اللاعب 1
@@ -208,6 +293,7 @@ function saveStats() {
 }
 
 function addScore(playerNum) {
+    // لا نريد تحديث رقم الجولة مع الإضافة والخصم
     // الحصول على قيم الإدخال
     const addInput = document.getElementById(`player${playerNum}Down`);
     const minusInput = document.getElementById(`player${playerNum}Minus`);
@@ -233,6 +319,7 @@ function addScore(playerNum) {
             // إذا كان المجموع الحالي موجب، نطرح القيمة
             currentTotal -= addValue;
         }
+
     }
     
     // خصم النقاط من المجموع
@@ -275,30 +362,20 @@ function addScore(playerNum) {
     // تشغيل صوت النقر
     playSound('button');
 
-    // التحقق من الفائز
-    checkWinner();
+    // التحقق من الفائز مع تحديد أن الاستدعاء من addScore
+    checkWinner(true);
 }
 
 // تحديث سجل الجولات
 function updateRoundCounter(isSpecialMove = false) {
-    let currentRound;
-    // حساب عدد الجولات العادية فقط (بدون النزول والخصم)
-    const normalRounds = gameState.rounds.filter(round => 
-        !(round.player1Down || round.player2Down || round.player1Minus || round.player2Minus)
-    ).length;
+    if (!isSpecialMove) return; // لا تحدث الجولة إلا مع الحركات الخاصة
 
-    if (isSpecialMove) {
-        currentRound = normalRounds + 1;
-    } else {
-        currentRound = normalRounds;
-    }
+    const currentRoundSpan = document.getElementById('currentRound');
+    const maxRoundsSpan = document.getElementById('maxRounds');
+    const currentRound = Math.min(gameState.rounds.length + 1, gameState.maxRounds);
     
-    document.getElementById('currentRound').textContent = currentRound;
-    document.getElementById('maxRounds').textContent = gameState.maxRounds;
-    document.getElementById('maxRoundsInput').value = gameState.maxRounds;
-
-    // تحديث المخزون المحلي
-    localStorage.setItem('maxRounds', gameState.maxRounds);
+    currentRoundSpan.textContent = currentRound;
+    maxRoundsSpan.textContent = gameState.maxRounds;
 }
 
 // تحديث عدد الجولات
@@ -319,50 +396,26 @@ function updateRoundHistory(isSpecialMove = false) {
     const history = document.getElementById('roundHistory');
     history.innerHTML = '';
 
+    // فلترة الجولات لإظهار الحركات الخاصة فقط
+    const specialRounds = gameState.rounds.filter(round => round.moveType);
+    
     // تحديث عداد الجولات فقط للحركات الخاصة
     if (isSpecialMove) {
-        document.getElementById('currentRound').textContent = gameState.rounds.length + 1;
+        document.getElementById('currentRound').textContent = specialRounds.length;
     }
 
-    gameState.rounds.forEach((round, index) => {
+    specialRounds.forEach((round, index) => {
         const roundDiv = document.createElement('div');
         roundDiv.className = 'round-entry';
         
-        const player1Name = gameState.player1.name || 'الفريق 1';
-        const player2Name = gameState.player2.name || 'الفريق 2';
-
-        if (round.specialMove) {
-            const move = specialMoves[round.specialMove.type];
-            const winner = round.specialMove.winner === 1 ? player1Name : player2Name;
-            const loser = round.specialMove.winner === 1 ? player2Name : player1Name;
-            roundDiv.innerHTML = `
-                <span>الجولة ${index + 1}:</span>
-                <span>${winner} فاز بـ ${move.name}${round.specialMove.divided ? ' (مقسوم على 2)' : ''}</span>
-                <span>(للفريق: ${round.player1Score} نقطة، للخصم: ${round.player2Score} نقطة)</span>
-            `;
-        } else {
-            let player1Info = `${round.player1Score} نقطة`;
-            let player2Info = `${round.player2Score} نقطة`;
-
-            if (round.player1Down > 0) {
-                player1Info = `⬇️ ${round.player1Down} نزول`;
-            }
-            if (round.player2Down > 0) {
-                player2Info = `⬇️ ${round.player2Down} نزول`;
-            }
-            if (round.player1Minus > 0) {
-                player1Info = `${player1Info} \n➖ ${round.player1Minus} خصم من المجموع`;
-            }
-            if (round.player2Minus > 0) {
-                player2Info = `${player2Info} \n➖ ${round.player2Minus} خصم من المجموع`;
-            }
-
-            roundDiv.innerHTML = `
-                <span>الجولة ${index + 1}:</span>
-                <span>${player1Name}: ${player1Info}</span>
-                <span>${player2Name}: ${player2Info}</span>
-            `;
-        }
+        const playerName = gameState[`player${round.player}`].name || `الفريق ${round.player}`;
+        const move = specialMoves[round.moveType];
+        
+        roundDiv.innerHTML = `
+            <span>الجولة ${index + 1}:</span>
+            <span>${playerName}: ${round.isDown ? `نزول ${move.name}` : move.name}</span>
+            <span>(المجموع: ${round.newTotal})</span>
+        `;
         
         history.appendChild(roundDiv);
     });
@@ -373,34 +426,65 @@ function updateRoundHistory(isSpecialMove = false) {
 
 
 // التحقق من الفائز
-function checkWinner() {
+function checkWinner(fromAddScore = false) {
+    // التحقق من عدد الجولات الحالي
+    const currentRound = parseInt(document.getElementById('currentRound').textContent);
+    
+    // التحقق من النقاط
+    const player1Score = gameState.player1.total;
+    const player2Score = gameState.player2.total;
+    
+    // لا نتحقق من الفائز قبل الجولة السابعة
+    if (currentRound < 7) {
+        return;
+    }
+
+    // إذا وصلنا للجولة 7 وهناك تعادل
+    if (currentRound === 7 && player1Score === player2Score) {
+        // تمديد اللعب إلى 9 جولات
+        gameState.maxRounds = 9;
+        document.getElementById('maxRounds').textContent = '9';
+        document.getElementById('maxRoundsInput').value = '9';
+        // إظهار رسالة التمديد
+        document.getElementById('winnerDisplay').textContent = 'تم تمديد اللعب إلى 9 جولات بسبب التعادل!';
+        return;
+    }
+
+    // إيقاف العداد عند وجود فائز
+    if (!fromAddScore) {
+        stopTimer();
+    }
     const winnerDisplay = document.getElementById('winnerDisplay');
-    const player1Name = gameState.player1.name || 'الفريق 1';
-    const player2Name = gameState.player2.name || 'الفريق 2';
+    const player1Name = gameState.player1.name || 'اللاعب 1';
+    const player2Name = gameState.player2.name || 'اللاعب 2';
 
-    winnerDisplay.textContent = ''; // مسح الرسالة السابقة
+    let winner = null;
+    let winnerName = '';
+    let winnerScore = 0;
 
-    // التحقق من انتهاء الجولات
-    if (gameState.rounds.length >= TOTAL_ROUNDS) {
-        let winner, winnerScore;
-        
-        if (gameState.player1.total < gameState.player2.total) {
-            winner = player1Name;
-            winnerScore = gameState.player1.total;
+    // التحقق من الفائز في الجولة السابعة أو التاسعة
+    if ((currentRound === 7 || currentRound === 9) && player1Score !== player2Score) {
+        if (player1Score < player2Score) {
+            winner = 1;
+            winnerName = player1Name;
+            winnerScore = player1Score;
         } else {
-            winner = player2Name;
-            winnerScore = gameState.player2.total;
+            winner = 2;
+            winnerName = player2Name;
+            winnerScore = player2Score;
         }
+    }
 
-        winnerDisplay.textContent = `🎉 مبروك! ${winner} هو الفائز بمجموع ${winnerScore} نقطة! 🎉`;
+    if (winner) {
+        winnerDisplay.textContent = `🎉 مبروك! ${winnerName} هو الفائز بمجموع ${winnerScore} نقطة! 🎉`;
         disableGameButtons();
         sounds.win.play();
 
         // حفظ اللعبة في السجل
         saveGameToHistory(winner === player1Name ? gameState.player1 : gameState.player2);
-    } else {
-        // عرض عدد الجولات المتبقية
-        const remainingRounds = TOTAL_ROUNDS - gameState.rounds.length;
+    } else if (!fromAddScore) {
+        // عرض عدد الجولات المتبقية فقط عندما لا يتم الاستدعاء من addScore
+        const remainingRounds = TOTAL_ROUNDS - specialRounds;
         winnerDisplay.textContent = `باقي ${remainingRounds} جولات`;
     }
 
@@ -469,10 +553,49 @@ function updateGameHistory() {
     `).join('');
 }
 
+// وظائف عداد الوقت
+function startTimer() {
+    gameState.startTime = new Date();
+    gameState.timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer() {
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
+}
+
+function updateTimer() {
+    if (!gameState.startTime) return;
+
+    const now = new Date();
+    const diff = now - gameState.startTime;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    const timerDisplay = document.getElementById('timer');
+    timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function resetTimer() {
+    stopTimer();
+    const timerDisplay = document.getElementById('timer');
+    timerDisplay.textContent = '00:00:00';
+    gameState.startTime = null;
+}
+
 function newGame() {
+    // إعادة ضبط العداد فقط
+    resetTimer();
     if (!confirm('هل أنت متأكد من بدء لعبة جديدة؟')) {
         return;
     }
+
+    // إعادة تشغيل العداد
+    resetTimer();
+    startTimer();
 
     const oldState = gameState;
     gameState = {
@@ -506,30 +629,65 @@ function newGame() {
     playSound('newGame');
 }
 
-// التراجع عن آخر جولة
-function undoLastRound() {
-    playSound('undo');
-    if (gameState.rounds.length === gameState.maxRounds) {
-        // إعادة تفعيل الأزرار عند التراجع عن الجولة الأخيرة
-        enableGameButtons();
-    }
-
-
+// التراجع عن آخر حركة
+function undoLastMove() {
     if (gameState.rounds.length === 0) {
-        alert('لا توجد جولات للتراجع عنها');
+        alert('لا توجد حركات للتراجع عنها');
         return;
     }
 
-    const lastRound = gameState.rounds.pop();
-    
-    // تحديث مجاميع اللاعبين
-    gameState.player1.total -= lastRound.player1Score;
-    gameState.player2.total -= lastRound.player2Score;
+    const lastMove = gameState.rounds.pop();
+    const playerNum = lastMove.player;
 
-    // تحديث العرض
-    document.getElementById('player1Total').textContent = gameState.player1.total;
-    document.getElementById('player2Total').textContent = gameState.player2.total;
-    document.getElementById('winnerDisplay').textContent = '';
-    
+    if (lastMove.moveType) {
+        // إذا كانت حركة خاصة
+        const move = specialMoves[lastMove.moveType];
+        const score = lastMove.isDown ? move.down : move.penalty;
+        const bonus = move.bonus;
+
+        // اللاعب الحالي والخصم
+        const currentPlayerTotal = document.getElementById(`player${playerNum}Total`);
+        const otherPlayerTotal = document.getElementById(`player${playerNum === 1 ? 2 : 1}Total`);
+        
+        // القيم الحالية
+        const currentPlayerScore = parseInt(currentPlayerTotal.textContent) || 0;
+        const otherPlayerScore = parseInt(otherPlayerTotal.textContent) || 0;
+        
+        // تحديث النقاط
+        currentPlayerTotal.textContent = currentPlayerScore - bonus;  // إزالة المكافأة
+        otherPlayerTotal.textContent = otherPlayerScore - score;    // إزالة الغرامة
+
+        // تحديث حالة اللعبة
+        gameState[`player${playerNum}`].total = parseInt(currentPlayerTotal.textContent);
+        gameState[`player${playerNum === 1 ? 2 : 1}`].total = parseInt(otherPlayerTotal.textContent);
+    } else {
+        // إذا كانت حركة عادية
+        const totalElement = document.getElementById(`player${playerNum}Total`);
+        let currentTotal = parseInt(totalElement.textContent) || 0;
+
+        if (lastMove.add) {
+            currentTotal += lastMove.add; // إضافة القيمة التي تم طرحها
+        }
+        if (lastMove.minus) {
+            currentTotal -= lastMove.minus; // طرح القيمة التي تمت إضافتها
+        }
+
+        // تحديث المجموع في واجهة المستخدم وحالة اللعبة
+        totalElement.textContent = currentTotal;
+        gameState[`player${playerNum}`].total = currentTotal;
+    }
+
+    // تحديث سجل الجولات
     updateRoundHistory();
+    updateRoundCounter();
+
+    // تشغيل صوت التراجع
+    playSound('button');
+
+    // إعادة تفعيل الأزرار إذا كانت معطلة
+    enableGameButtons();
+
+    // إخفاء رسالة الفائز إذا كانت ظاهرة
+    document.getElementById('winnerDisplay').textContent = '';
 }
+

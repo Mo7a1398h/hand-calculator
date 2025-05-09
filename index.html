@@ -6,8 +6,9 @@
     <title>حاسبة الهند</title>
     
     <!-- أيقونات التطبيق -->
-    <link rel="icon" type="image/svg+xml" href="app-icon.svg">
-    <link rel="apple-touch-icon" href="app-icon.svg">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link rel="manifest" href="manifest.json">
     
     <!-- إعدادات iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,6 +22,8 @@
     <meta name="apple-mobile-web-app-title" content="حاسبة الهند">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="controls-top">
@@ -34,6 +37,15 @@
     </div>
     <div class="container">
         <h1>حاسبة الهند</h1>
+        
+        <div class="timer-container">
+            <div class="timer" id="timer">00:00:00</div>
+            <div class="timer-controls">
+                <button id="startTimerBtn" class="control-btn timer-btn" onclick="handleTimerClick()">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </div>
         
         <div class="players">
             <div class="player">
@@ -171,6 +183,13 @@
 
         <div class="rounds">
             <h3>سجل الجولات</h3>
+            <div class="share-buttons">
+
+                <button onclick="shareResults()" class="share-btn share-btn" title="مشاركة النتائج">
+                    <i class="fas fa-share-alt"></i>
+                    مشاركة
+                </button>
+            </div>
             <div id="roundHistory"></div>
             <div class="chart-container">
                 <canvas id="scoreChart"></canvas>
@@ -184,14 +203,8 @@
                     <input type="number" id="maxRoundsInput" min="1" max="20" value="7" onchange="updateMaxRounds()">
                 </div>
             </div>
-            <div class="game-rules">
-                <p class="rules-text">الفائز هو من يجمع أقل نقاط 🌟</p>
-            </div>
             <div class="round-counter">
-                <span>الجولة الحالية: </span>
-                <span id="currentRound">1</span>
-                <span> / </span>
-                <span id="maxRounds">7</span>
+                الجولة: <span id="currentRound">1</span> / <span id="maxRounds">7</span>
             </div>
         </div>
 
@@ -216,13 +229,45 @@
 
         <div class="controls">
             <button onclick="newGame()" class="new-game">🎮 لعبة جديدة</button>
-            <button onclick="undoLastRound()" class="undo">↩️ تراجع</button>
-            <button onclick="resetStats()" class="reset-stats">🔄 إعادة تعيين الإحصائيات</button>
+            <button onclick="undoLastMove()" class="undo-btn">↩️ تراجع</button>
         </div>
 
         <div class="winner" id="winnerDisplay"></div>
     </div>
+
+    <!-- حاسبة النزول -->
+    <div class="down-calculator">
+        <h3>حاسبة النزول</h3>
+        <div class="calculator-inputs">
+            <input type="number" id="downCalculatorInput" placeholder="أدخل الرقم" min="0">
+            <select id="downCalculatorType">
+                <option value="hand">هند</option>
+                <option value="ajkari">أجكري</option>
+                <option value="amkari">أمكري</option>
+                <option value="amkariWalon">أمكري ولون</option>
+            </select>
+        </div>
+        <div class="calculator-result">
+            <span>الناتج: </span>
+            <span id="downCalculatorResult">0</span>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="share.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
     <!-- النافذة المنبثقة -->
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="creator-modal" id="creatorModal">
